@@ -48,7 +48,7 @@
                             <div class="row">
                                 <div class="file-field input-field">
                                     <div class="file-path-wrapper col s10">
-                                        <input placeholder="Upload a card image" class="file-path validate" type="text">
+                                        <input id="cardImageField" placeholder="Upload a card image" class="file-path validate" type="text">
                                     </div>
                                     <div class="waves-effect waves-light btn col s2">
                                         <span>File</span>
@@ -140,13 +140,25 @@
             </div>
         </div>
         
-        <nav>
+        <div>
             <div class="nav-wrapper grey darken-4">
                 <div class="row">
                     <a class="waves-effect waves-light btn col s10 offset-s1" id="cardSave" download="card.png">Save</a>
                 </div>
+                <div class="row">
+                    <div class="file-field input-field">
+                        <div class="file-path-wrapper col s3 offset-s1">
+                            <input placeholder="Card JSON" class="file-path validate" type="text">
+                        </div>
+                        <div class="waves-effect waves-light btn col s2">
+                            <span>Load</span>
+                            <input id="cardLoadJSON" type="file" accept="application/json">
+                        </div>
+                    </div>
+                    <a class="waves-effect waves-light btn col s5 offset" id="cardSaveJSON" download="card.json">Save JSON</a>
+                </div>
             </div>
-        </nav>
+        </div>
     </body>
 
     <script>

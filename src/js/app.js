@@ -25,6 +25,8 @@ var card = {
     health: $('#cardHealth').val()
 };
 
+let cardLock = false;
+
 function previewCard(cardObj)
 {
     $('#cardPreviewName').html(cardObj.name);
@@ -34,12 +36,30 @@ function previewCard(cardObj)
     $('#cardPreviewType').html(cardObj.type + (cardObj.subtype ? " - " + cardObj.subtype : ""));
     $('#cardPreviewRarity').html(cardObj.rarity);
     $('#cardPreviewText').text(cardObj.text);
-    $('#cardPreviewImage').attr('src', (cardObj.image ? cardObj.image : "./res/nothing.png"));
+    if(cardObj.image)
+        $('#cardPreviewImage').attr('src', cardObj.image);
     $('#cardPreviewArtist').text(cardObj.artist);
     if(cardObj.power && cardObj.health)
         $('#cardPreviewStats').attr('style','').text(cardObj.power + ' / ' + cardObj.health);
     else
         $('#cardPreviewStats').attr('style','display:none;').text('');
+}
+
+function updateFields()
+{
+    $('#cardName').val(card.name);
+    $('#cardMana').val(card.manaCost);
+    $('#cardSubtype').val(card.subtype);
+    $('#cardText').val(card.text);
+    $('#cardArtist').val(card.artist);
+    $('#cardPower').val(card.power);
+    $('#cardHealth').val(card.health);
+    
+    $('#cardColor').val(card.color).change();
+    $('#cardType').val(card.type).change();
+    $('#cardRarity').val(card.rarity).change();
+
+    $('select').formSelect();
 }
 
 function renderCard()
@@ -62,6 +82,8 @@ function renderCard()
 
 function buildCard()
 {
+    if(cardLock) return;
+
     card = {
         name: $('#cardName').val(),
         color: $('#cardColor').val(),
@@ -82,6 +104,8 @@ function buildCard()
         var reader = new FileReader();
 
         reader.onload = (e) => {
+            if(cardLock) return;
+
             card.image = e.target.result;
 
             previewCard(card);
@@ -93,6 +117,38 @@ function buildCard()
     previewCard(card);
 }
 
+function loadJSON()
+{
+    var input = $('#cardLoadJSON');
+    if(input.prop('files') && input.prop('files')[0])
+    {
+        var reader = new FileReader();
+
+        reader.onload = (e) => {
+
+            card = JSON.parse(e.target.result);
+
+            console.log(card);
+
+            cardLock = true;
+            previewCard(card);
+
+            $('#cardImage').val('');
+            $('#cardImageField').val('');
+            updateFields();
+            cardLock = false;
+
+            let parent = $(this).parent();
+            let elem = $(this).prop('outerHTML');
+            $(this).remove();
+            $(elem).change(loadJSON).appendTo(parent);
+
+        };
+
+        reader.readAsText(input.prop('files')[0]);
+    }
+}
+
 $(document).ready(function () {
     // Access the DOM elements here...
 
@@ -101,6 +157,15 @@ $(document).ready(function () {
     $('#cardSave').click(() => {
         renderCard();
     });
+
+    $('#cardSaveJSON').click(() => {
+        let button = document.createElement("a");
+        button.href = "data:application/octet-stream;base64," + btoa(JSON.stringify(card));
+        button.download = card.name + '.json';
+        button.click();
+    });
+
+    $('#cardLoadJSON').on('change', loadJSON);
 
     // $('#cardGenerate').click(buildCard);
 
