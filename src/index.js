@@ -11,7 +11,7 @@ function main() {
         }
     });
 
-    mainWin.loadFile('../index.html');
+    mainWin.loadFile('./src/index.html');
 }
 
 app.whenReady().then( ()  => {
