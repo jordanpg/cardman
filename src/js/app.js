@@ -19,7 +19,10 @@ var card = {
     type: $('#cardType').val(),
     subtype: $('#cardSubtype').val(),
     rarity: $('#cardRarity').val(),
-    text: $('#cardText').val()
+    text: $('#cardText').val(),
+    artist: $('#cardArtist').val(),
+    power: $('#cardPower').val(),
+    health: $('#cardHealth').val()
 };
 
 function previewCard(cardObj)
@@ -32,6 +35,11 @@ function previewCard(cardObj)
     $('#cardPreviewRarity').html(cardObj.rarity);
     $('#cardPreviewText').text(cardObj.text);
     $('#cardPreviewImage').attr('src', (cardObj.image ? cardObj.image : "./res/nothing.png"));
+    $('#cardPreviewArtist').text(cardObj.artist);
+    if(cardObj.power && cardObj.health)
+        $('#cardPreviewStats').attr('style','').text(cardObj.power + ' / ' + cardObj.health);
+    else
+        $('#cardPreviewStats').attr('style','display:none;').text('');
 }
 
 function renderCard()
@@ -54,8 +62,6 @@ function renderCard()
 
 function buildCard()
 {
-    console.log("Generating Card");
-
     card = {
         name: $('#cardName').val(),
         color: $('#cardColor').val(),
@@ -64,10 +70,11 @@ function buildCard()
         type: $('#cardType').val() || "",
         subtype: $('#cardSubtype').val(),
         rarity: $('#cardRarity').val() || "",
-        text: $('#cardText').val()
+        text: $('#cardText').val(),
+        artist: $('#cardArtist').val(),
+        power: $('#cardPower').val(),
+        health: $('#cardHealth').val()
     };
-
-    console.log(card.text);
 
     var input = $('#cardImage');
     if(input.prop('files') && input.prop('files')[0])

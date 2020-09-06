@@ -85,7 +85,7 @@ input, textarea {
 }
 
 .card-text {
-  height: 30mm;
+  height: 28mm;
   width: 53mm;
   margin-left: 2mm;
   margin-top: 0mm;
@@ -103,6 +103,41 @@ input, textarea {
 
   word-wrap: break-word;
   white-space: pre-wrap;
+}
+
+.card-stats {
+  height: 6mm;
+  width: 20mm;
+  margin-left: 18.75mm;
+  margin-right: 18.75mm;
+  margin-top: -7.5mm;
+
+  padding-left: 1mm;
+  padding-right: 1mm;
+
+  border: 0.5mm solid black;
+  border-radius: 1mm;
+  background-color: #fafafa;
+
+  text-align: center;
+  font-size: smaller;
+  font-weight: bold;
+
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.card-artist {
+  height: 6mm;
+  width: 25mm;
+  margin-left: 1mm;
+  margin-top: -0.75mm;
+
+  text-align: left;
+  font-size: x-small;
+  font-weight: lighter;
+
+  white-space: nowrap;
 }
 
 .card.yellow {

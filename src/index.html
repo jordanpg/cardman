@@ -86,6 +86,21 @@
                                     <label for="cardSubtype">Subtype</label>
                                 </div>
                             </div>
+                            <!-- Card Stats -->
+                            <div class="row">
+                                <div class="input-field col s3">
+                                    <input id="cardPower" type="number" class="validate">
+                                    <label for="cardPower">Power</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <input id="cardHealth" type="number" class="validate">
+                                    <label for="cardHealth">Health</label>
+                                </div>
+                                <div class="input-field col s6">
+                                    <input id="cardArtist" type="text" class="validate">
+                                    <label for="cardArtist">Artist</label>
+                                </div>
+                            </div>
                             <!-- Card Text -->
                             <div class="row">
                                 <div class="input-field col s12">
@@ -115,10 +130,11 @@
                         <div id="cardPreviewText" class="card-text flow-text">
                             
                         </div>
+                        <div id="cardPreviewArtist" class="card-artist"></div>
+                        <div id="cardPreviewStats" style="display:none;" class="card-stats"></div>
                     </div>
                     
                     <canvas id="cardCanvas" width="240" height="336" style="display:none;"></canvas>
-
                     
                 </div>
             </div>
