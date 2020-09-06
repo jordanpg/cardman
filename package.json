@@ -1,0 +1,30 @@
+{
+  "name": "cardman",
+  "version": "1.0.0",
+  "description": "electron card manager and generator",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "npm run build && electron ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordanpg/cardman.git"
+  },
+  "author": "jordanpg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jordanpg/cardman/issues"
+  },
+  "homepage": "https://github.com/jordanpg/cardman#readme",
+  "devDependencies": {
+    "electron": "10.1.1",
+    "tslint": "^6.1.3",
+    "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "@types/jquery": "^3.5.1",
+    "rasterizehtml": "^1.3.0"
+  }
+}
