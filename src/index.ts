@@ -5,7 +5,9 @@ function main() {
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            sandbox: false,
+            preload: './preload.js'
         }
     });
 

@@ -32,7 +32,8 @@
                                 <div class="input-field col s3">
                                     <div class="select-wrapper">
                                         <select id="cardColor" tabindex="-1">
-                                            <option value="red" selected>Red</option>
+                                            <option value="" disabled selected>Color</option>
+                                            <option value="red">Red</option>
                                             <option value="yellow">Yellow</option>
                                             <option value="green">Green</option>
                                             <option value="blue">Blue</option>
@@ -60,7 +61,8 @@
                                 <div class="input-field col s3">
                                     <div class="select-wrapper">
                                         <select id="cardRarity" tabindex="-1">
-                                            <option value="Common" selected>Common</option>
+                                            <option value="" disabled selected>Rarity</option>
+                                            <option value="Common">Common</option>
                                             <option value="Uncommon">Uncommon</option>
                                             <option value="Rare">Rare</option>
                                             <option value="Legendary">Legendary</option>
@@ -71,7 +73,8 @@
                                 <div class="input-field col s3">
                                     <div class="select-wrapper">
                                         <select id="cardType" tabindex="-1">
-                                            <option value="Creature" selected>Creature</option>
+                                            <option value="" disabled selected>Type</option>
+                                            <option value="Creature">Creature</option>
                                             <option value="Spell">Spell</option>
                                             <option value="Artifact">Artifact</option>
                                         </select>
@@ -93,29 +96,41 @@
                         </form>
                     </div>
 
-                    <div class="row">
+                    <!-- <div class="row">
                         <a class="waves-effect waves-light btn col s10 offset-s1" id="cardGenerate">Generate</a>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="col content-column s12 m6">
                     <h5>Card Preview</h5>
-                    <div id="cardPreview" class="card red">
+                    <div id="cardPreview" class="card">
                         <div class="card-header">
-                            <div id="cardPreviewName" style="float: left; width: 50%; text-align: left;">Kirby</div>
-                            <div id="cardPreviewMana" style="float: right; width: 50%; text-align: right;">6RR</div>
+                            <div id="cardPreviewName" style="float: left; width: 70%; text-align: left;"></div>
+                            <div id="cardPreviewMana" style="float: right; width: 30%; text-align: right;"></div>
                         </div>
-                        <img id="cardPreviewImage" onerror="console.log('wtf');this.src='./res/nothing.png';" src="https://s.pacn.ws/640/yi/kirbys-dream-land-all-star-collection-plush-kirby-suyasuya-s-621021.1.jpg?q59xm2" />
+                        <img id="cardPreviewImage" src="./res/nothing.png" />
                         <div class="card-type">
-                            <div id="cardPreviewType" style="float: left; width: 50%; text-align: left;">Creature - Baby</div>
-                            <div id="cardPreviewRarity" style="float: right; width: 50%; text-align: right;">Mythic</div>
+                            <div id="cardPreviewType" style="float: left; width: 50%; text-align: left;"></div>
+                            <div id="cardPreviewRarity" style="float: right; width: 50%; text-align: right;"></div>
                         </div>
                         <div id="cardPreviewText" class="card-text flow-text">
-                            When this creature enters into play, pet him softly. You will give him treats and treat him right. You will not mistreat this creature. This creature is indestructible and hexproof.
+                            
                         </div>
-                    </div> 
+                    </div>
+                    
+                    <canvas id="cardCanvas" width="240" height="336" style="display:none;"></canvas>
+
+                    
                 </div>
             </div>
         </div>
+        
+        <nav>
+            <div class="nav-wrapper grey darken-4">
+                <div class="row">
+                    <a class="waves-effect waves-light btn col s10 offset-s1" id="cardSave" download="card.png">Save</a>
+                </div>
+            </div>
+        </nav>
     </body>
 
     <script>

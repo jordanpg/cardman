@@ -59,6 +59,10 @@ input, textarea {
   border: 0.5mm solid black;
   border-radius: 1mm;
   background-color: #fafafa;
+
+  font-weight: bold;
+
+  white-space: nowrap;
 }
 
 .card-type {
@@ -75,6 +79,9 @@ input, textarea {
 
   text-align: left;
   font-size: smaller;
+  font-weight: bold;
+
+  white-space: nowrap;
 }
 
 .card-text {
@@ -92,6 +99,10 @@ input, textarea {
 
   text-align: left;
   font-size: smaller;
+  font-weight: lighter;
+
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .card.yellow {
