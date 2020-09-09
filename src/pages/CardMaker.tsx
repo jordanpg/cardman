@@ -5,6 +5,8 @@ import { useParams } from 'react-router';
 import PreviewCard from '../components/PreviewCard';
 
 import './CardMaker.css';
+// import rasterizeHTML from 'rasterizehtml';
+import html2canvas from 'html2canvas';
 
 const CardMaker: React.FC = () => {
     const [name, setName] = useState<string>();
@@ -19,8 +21,12 @@ const CardMaker: React.FC = () => {
     const [text, setText] = useState<string>();
     const [artUrl, setArtUrl] = useState<string>();
 
+    const [previewWidth, setPreviewWidth] = useState<number>();
+
     const artFile = useRef(null);
     const jsonOpen = useRef(null);
+    const saveFiles = useRef(null);
+    const previewColumn = useRef(null);
 
     const cardObj: Cardman.Card = {
       name: name,
@@ -81,6 +87,61 @@ const CardMaker: React.FC = () => {
         };
         reader.readAsText(event.target.files[0])
       }
+    }
+
+    function onSaveButton(event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>)
+    {
+      event.preventDefault();
+
+      var tempDL = document.createElement("a");
+      tempDL.style.display = "none";
+
+      // var canvas = document.getElementById('cardCanvas') as HTMLCanvasElement;
+      // if(!canvas) return;
+
+      // const style = document.getElementsByTagName('head')[0].outerHTML;
+      // const input = style + document.getElementById('cardPreview')?.outerHTML;
+
+      // console.log(input);
+
+      // //@ts-ignore
+      // canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      
+      // rasterizeHTML.drawHTML(input, canvas).then((r) => {
+      //   tempDL.href = canvas.toDataURL("image/png");
+      //   tempDL.download = cardObj.name + '.png';
+      //   tempDL.click();
+
+      //   tempDL.href = "data:application/octet-stream;base64," + btoa(JSON.stringify(cardObj));
+      //   tempDL.download = cardObj.name + '.json';
+      //   tempDL.click();
+      // }).catch((e) => {
+      //     console.error(e);
+      // });
+
+      var el = document.createElement('div');
+      document.body.appendChild(el);
+
+      var target = document.getElementById('cardPreview')?.cloneNode(true);
+      //@ts-ignore
+      el.appendChild(target);
+
+      //@ts-ignore
+      html2canvas(el.firstChild, {backgroundColor: null}).then(canvas => {
+        canvas.style.display = 'none';
+
+        tempDL.href = canvas.toDataURL("image/png");
+        tempDL.download = cardObj.name + '.png';
+        tempDL.click();
+
+        tempDL.href = "data:application/octet-stream;base64," + btoa(JSON.stringify(cardObj));
+        tempDL.download = cardObj.name + '.json';
+        tempDL.click();
+
+        el.remove();
+      });
+
+      tempDL.remove();
     }
 
     return (
@@ -215,16 +276,27 @@ const CardMaker: React.FC = () => {
                                         Load Card JSON
                                     </IonButton>
                                 </>
+
+                                <IonButton
+                                    color="primary"
+                                    onClick={onSaveButton}>
+                                    Save Card
+                                </IonButton>
                             </IonCol>
                         </IonRow>
                     </form>
                 </IonCol>
-                <IonCol size="12" size-md="6">
+                <IonCol size="12" size-md="6" ref={previewColumn}>
                   {/* Card Preview */}
-                    <PreviewCard cardObj={cardObj} />
+                    <PreviewCard cardObj={cardObj} scale={1.5} />
                 </IonCol>
               </IonRow>
           </IonGrid>
+          {/* <canvas id="cardCanvas" style={{
+                      display: 'none',
+                      width: 240,
+                      height: 336
+                    }}></canvas> */}
         </IonContent>
       </IonPage>
     );

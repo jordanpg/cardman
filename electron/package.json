@@ -1,7 +1,7 @@
 {
   "name": "cardman",
-  "version": "1.0.0",
-  "description": "An Amazing Capacitor App",
+  "version": "2.0.0",
+  "description": "Card builder and manager",
   "main": "./build/index.js",
   "scripts": {
     "build": "tsc",
@@ -26,7 +26,7 @@
   "license": "MIT",
   "build": {
     "appId": "com.example.capacitor-app",
-    "productName": "Capacitor App",
+    "productName": "cardman",
     "files": [
       "assets/*",
       "build/index.js",

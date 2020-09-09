@@ -1,15 +1,19 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 import './PreviewCard.css';
 
 interface PreviewCardProps {
-    cardObj: Cardman.Card
+    cardObj: Cardman.Card,
+    scale?: number
 }
 
-const PreviewCard: React.FC<PreviewCardProps> = ({ cardObj }) => {
+const PreviewCard: React.FC<PreviewCardProps> = ({ cardObj, scale }) => {
     return (
         <div style={{
-            margin: "auto"
+            margin: "auto",
+            transform: "scale(" + (scale ? scale : 1) + ")",
+            transformOrigin: "top"
         }}>
             <div id="cardPreview" className={"card " + cardObj.color.toLowerCase()}>
                 <div className="card-header" style={{
@@ -40,7 +44,9 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ cardObj }) => {
                         textAlign: "right"
                     }}>{cardObj.rarity}</div>
                 </div>
-                <div id="cardPreviewText" className="card-text flow-text">{cardObj.text}</div>
+                <div id="cardPreviewText" className="card-text flow-text">
+                    <ReactMarkdown escapeHtml={false} source={cardObj.text} />
+                </div>
                 <div id="cardPreviewArtist" className="card-artist">{cardObj.artist}</div>
                 <div id="cardPreviewStats" style={{
                     display: (cardObj.power && cardObj.health) ? "initial" : "none"
