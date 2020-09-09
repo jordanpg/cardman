@@ -25,7 +25,6 @@ const CardMaker: React.FC = () => {
 
     const artFile = useRef(null);
     const jsonOpen = useRef(null);
-    const saveFiles = useRef(null);
     const previewColumn = useRef(null);
 
     const cardObj: Cardman.Card = {
@@ -174,8 +173,8 @@ const CardMaker: React.FC = () => {
                                 <IonInput required value={name} placeholder="Card Name" onIonChange={e=>setName(e.detail.value!)}></IonInput>
                             </IonCol>
                             <IonCol size="3">
-                                <IonLabel>Mana Cost*</IonLabel>
-                                <IonInput required value={mana} placeholder="e.g. {2}{B2}" onIonChange={e=>setMana(e.detail.value!)}></IonInput>
+                                <IonLabel>Mana Cost</IonLabel>
+                                <IonInput value={mana} placeholder="e.g. {2}{B2}" onIonChange={e=>setMana(e.detail.value!)}></IonInput>
                             </IonCol>
                             <IonCol size="3">
                                 <IonLabel>Color</IonLabel>
@@ -199,6 +198,7 @@ const CardMaker: React.FC = () => {
                                       <IonSelectOption value="Uncommon">Uncommon</IonSelectOption>
                                       <IonSelectOption value="Rare">Rare</IonSelectOption>
                                       <IonSelectOption value="Legendary">Legendary</IonSelectOption>
+                                      <IonSelectOption value="Token">Token</IonSelectOption>
                                 </IonSelect>
                           </IonCol>
                           <IonCol size="3">
