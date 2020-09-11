@@ -37,7 +37,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ cardObj, scale }) => {
                         float: "left",
                         width: "50%",
                         textAlign: "left"
-                    }}>{cardObj.type + (cardObj.subtype !== undefined ? " - " + cardObj.subtype : "")}</div>
+                    }}>{cardObj.type + ((cardObj.subtype != null && cardObj.subtype.length > 0) ? " - " + cardObj.subtype : "")}</div>
                     <div id="cardPreviewRarity" style={{
                         float: "right",
                         width: "50%",

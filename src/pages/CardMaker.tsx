@@ -258,6 +258,12 @@ const CardMaker: React.FC = () => {
                                     </IonButton>
                                 </>
 
+                                <IonButton
+                                    color="primary"
+                                    onClick={e=>setArtUrl(null)}>
+                                    Remove Art
+                                </IonButton>
+
                                 <>
                                     <input
                                         ref={jsonOpen}
