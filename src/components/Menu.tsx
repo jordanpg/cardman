@@ -12,7 +12,7 @@ import {
 
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { archiveOutline, archiveSharp, bookmarkOutline, hammerOutline, hammerSharp } from 'ionicons/icons';
+import { archiveOutline, archiveSharp, bookmarkOutline, hammerOutline, hammerSharp, pencilOutline, pencilSharp } from 'ionicons/icons';
 import './Menu.css';
 
 interface AppPage {
@@ -28,6 +28,12 @@ const appPages: AppPage[] = [
     url: '/page/CardMaker',
     iosIcon: hammerOutline,
     mdIcon: hammerSharp
+  },
+  {
+    title: 'Deck Builder',
+    url: '/page/DeckBuilder',
+    iosIcon: pencilOutline,
+    mdIcon: pencilSharp
   }
 ];
 

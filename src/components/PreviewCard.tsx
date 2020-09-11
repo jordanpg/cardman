@@ -49,7 +49,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ cardObj, scale }) => {
                 </div>
                 <div id="cardPreviewArtist" className="card-artist">{cardObj.artist}</div>
                 <div id="cardPreviewStats" style={{
-                    display: (cardObj.power && cardObj.health) ? "initial" : "none"
+                    display: (cardObj.power != null && cardObj.health != null && !isNaN(cardObj.power) && !isNaN(cardObj.health)) ? "initial" : "none"
                 }} className="card-stats">{cardObj.power + "/" + cardObj.health}</div>
             </div>
         </div>

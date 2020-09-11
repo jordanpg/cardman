@@ -1,4 +1,4 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonItemDivider, IonInput, IonSelect, IonSelectOption, IonLabel, IonButton, IonItem, IonTextarea } from '@ionic/react';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonItemDivider, IonInput, IonSelect, IonSelectOption, IonLabel, IonButton, IonItem, IonTextarea, isPlatform, getPlatforms } from '@ionic/react';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useParams } from 'react-router';
 

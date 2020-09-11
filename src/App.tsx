@@ -1,6 +1,7 @@
 import Menu from './components/Menu';
 import Page from './pages/Page';
 import CardMaker from './pages/CardMaker';
+import DeckBuilder from './pages/DeckBuilder';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           <IonRouterOutlet id="main">
             <Route path="/page/:name" component={Page} exact />
             <Route path="/page/CardMaker" component={CardMaker} exact />
+            <Route path="/page/DeckBuilder" component={DeckBuilder} exact />
             <Redirect from="/" to="/page/CardMaker" exact />
           </IonRouterOutlet>
         </IonSplitPane>

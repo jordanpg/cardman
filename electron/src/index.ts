@@ -1,14 +1,26 @@
-import { app } from "electron";
+import { app, ipcMain } from "electron";
 import { createCapacitorElectronApp } from "@capacitor-community/electron-core";
+import glob from 'glob-promise';
+import fs from 'fs';
 
 // The MainWindow object can be accessed via myCapacitorApp.getMainWindow()
-const myCapacitorApp = createCapacitorElectronApp();
+const myCapacitorApp = createCapacitorElectronApp({
+  mainWindow: {
+    windowOptions: {
+      webPreferences: {
+        nodeIntegration: true
+      }
+    }
+  }
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some Electron APIs can only be used after this event occurs.
 app.on("ready", () => {
   myCapacitorApp.init();
+
+  getCards().then(console.log);
 });
 
 // Quit when all windows are closed.
@@ -27,3 +39,47 @@ app.on("activate", function () {
 });
 
 // Define any IPC or other custom functionality below here
+let mainState = {
+  cardList: []
+};
+
+async function getCards()
+{
+  mainState.cardList = [];
+  // Get a list of all card JSON files
+  await glob('cards/**/*.json')
+    .then(files => {
+      // Iterate through the list of files
+      return Promise.all(files.map( async file => {
+        // Open each file to read
+        return fs.promises.readFile(file, 'utf8')
+          .then(data => {
+            try
+            {
+              // Parse the card JSON and add it to the list
+              mainState.cardList.push(JSON.parse(data));
+              return true;
+            }
+            catch(err) // Handle JSON errors
+            {
+              console.warn('Error while reading JSON file ' + file + ': ' + err);
+              return false;
+            }
+          })
+          .catch(err => {
+            console.warn('Error when reading file ' + file + ': ' + err);
+            return false;
+          });
+      }));
+    })
+    .catch(err => {
+      console.error('Error while grabbing card files: ' + err);
+      return null;
+    });
+
+  return Promise.resolve(mainState.cardList);
+}
+
+ipcMain.handle('cardList', async (event) => {
+  return await getCards();
+});
