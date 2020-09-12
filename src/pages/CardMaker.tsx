@@ -16,6 +16,16 @@ interface CardMakerProps {
   editingFile?: string
 }
 
+function validURL(str: string) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
+
 const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [name, setName] = useState<string>();
     const [mana, setMana] = useState<string>();
@@ -124,6 +134,27 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                 elem['health'] = parseInt(elem['health']);
                 if('image' in elem === false)
                   elem['image'] = null;
+                else if(validURL(elem['image']))
+                {
+                  await new Promise((resolve, reject) => {
+                    let dl = new Image();
+                    dl.crossOrigin = "Anonymous";
+                    dl.addEventListener("load", () => {
+                      let c = document.createElement("canvas");
+                      let ct = c.getContext("2d");
+  
+                      c.width = dl.width;
+                      c.height = dl.height;
+  
+                      ct.drawImage(dl, 0, 0);
+                      
+                      elem['image'] = c.toDataURL('image/png');
+                      c.remove();
+                      resolve(true);
+                    }, false);
+                    dl.src = elem['image'];
+                  });
+                }
 
                 setCardObj(elem);
                 return renderCardToDataURL()
