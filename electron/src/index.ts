@@ -83,3 +83,18 @@ async function getCards()
 ipcMain.handle('cardList', async (event) => {
   return await getCards();
 });
+
+ipcMain.on('saveImages', (event, list) => {
+  if(!fs.existsSync('cards/csvOut'))
+    fs.mkdirSync('cards/csvOut', { recursive: true });
+
+  list.forEach(element => {
+    let data = element[1].replace(/^data:image\/\w+;base64,/, "");
+    let buf = Buffer.from(data, 'base64');
+    let name = 'cards/csvOut/' + element[0] + '.png';
+    console.log("Writing image " + name);
+    fs.writeFile(name, buf, (err) => {
+      if(err) console.error(err);
+    });
+  });
+});

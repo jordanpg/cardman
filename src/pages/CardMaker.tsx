@@ -1,14 +1,22 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonItemDivider, IonInput, IonSelect, IonSelectOption, IonLabel, IonButton, IonItem, IonTextarea, isPlatform, getPlatforms } from '@ionic/react';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useParams } from 'react-router';
+import { File, FileWriter } from '@ionic-native/file';
+import 'csvtojson';
 
 import PreviewCard from '../components/PreviewCard';
 
 import './CardMaker.css';
 // import rasterizeHTML from 'rasterizehtml';
 import html2canvas from 'html2canvas';
+import csvtojson from 'csvtojson';
+import { platform } from 'os';
 
-const CardMaker: React.FC = () => {
+interface CardMakerProps {
+  editingFile?: string
+}
+
+const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [name, setName] = useState<string>();
     const [mana, setMana] = useState<string>();
     const [color, setColor] = useState<string>('Colorless');
@@ -21,11 +29,12 @@ const CardMaker: React.FC = () => {
     const [text, setText] = useState<string>();
     const [artUrl, setArtUrl] = useState<string>();
 
-    const [previewWidth, setPreviewWidth] = useState<number>();
+    // const [previewWidth, setPreviewWidth] = useState<number>();
 
     const artFile = useRef(null);
     const jsonOpen = useRef(null);
     const previewColumn = useRef(null);
+    const csvFile = useRef(null);
 
     const cardObj: Cardman.Card = {
       name: name,
@@ -41,22 +50,47 @@ const CardMaker: React.FC = () => {
       health: health
     };
 
+    function setCardObj(t: Cardman.Card)
+    {
+      // Correct old field names
+      if(t.type === "Spell") t.type = "Action";
+      if(t.type === "Artifact") t.type = "Field";
+
+      if(t.subtype === "") t.subtype = undefined;
+
+      setName(t.name);
+      setColor(t.color);
+      setMana(t.manaCost);
+      setArtUrl(t.image);
+      setType(t.type);
+      setSubtype(t.subtype);
+      setRarity(t.rarity);
+      setText(t.text);
+      setArtist(t.artist);
+      setPower(t.power);
+      setHealth(t.health);
+    }
+
     // Read image file to data URL and store it
     function onSelectFile(event: ChangeEvent<HTMLInputElement>)
     {
-        if(event.target.files && event.target.files[0])
-        {
-          let reader = new FileReader();
-          reader.onload = (e) => {
-            //@ts-ignore
-            setArtUrl(e.target.result);
-          };
-          reader.readAsDataURL(event.target.files[0])
-        }
+      event.preventDefault();
+
+      if(event.target.files && event.target.files[0])
+      {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          //@ts-ignore
+          setArtUrl(e.target.result);
+        };
+        reader.readAsDataURL(event.target.files[0])
+      }
     }
 
     function onSelectJSON(event: ChangeEvent<HTMLInputElement>)
     {
+      event.preventDefault();
+
       if(event.target.files && event.target.files[0])
       {
         let reader = new FileReader();
@@ -66,26 +100,73 @@ const CardMaker: React.FC = () => {
 
           console.log(t);
 
-          // Correct old field names
-          if(t.type === "Spell") t.type = "Action";
-          if(t.type === "Artifact") t.type = "Field";
-
-          if(t.subtype === "") t.subtype = undefined;
-
-          setName(t.name);
-          setColor(t.color);
-          setMana(t.manaCost);
-          setArtUrl(t.image);
-          setType(t.type);
-          setSubtype(t.subtype);
-          setRarity(t.rarity);
-          setText(t.text);
-          setArtist(t.artist);
-          setPower(t.power);
-          setHealth(t.health);
+          setCardObj(t);
         };
         reader.readAsText(event.target.files[0])
       }
+    }
+
+    function onSelectCSV(event: ChangeEvent<HTMLInputElement>)
+    {
+      event.preventDefault();
+
+      if(event.target.files && event.target.files[0])
+      {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          csvtojson()
+            .fromString(e.target?.result as string)
+            .then( async json => {
+              console.log(json);
+              let list = await Promise.all(json.map(async elem => {
+                elem['text'] = elem['text'].replace(/\\n/g,'\r\n');
+                elem['power'] = parseInt(elem['power']);
+                elem['health'] = parseInt(elem['health']);
+                if('image' in elem === false)
+                  elem['image'] = null;
+                  
+                setCardObj(elem);
+                return renderCardToDataURL()
+                  .then(url => {
+                    return [elem['name'], url];
+                  })
+              }));
+
+              console.log(list);
+              if(isPlatform('electron'))
+              {
+                const ipcRenderer = window.require('electron').ipcRenderer;
+
+                ipcRenderer.send('saveImages', list);
+              }
+            })
+        }
+
+        reader.readAsText(event.target.files[0])
+      }
+    }
+
+    function renderCardToDataURL(): Promise<string>
+    {
+      return new Promise<string>( (resolve, reject) => {
+        var el = document.createElement('div');
+        document.body.appendChild(el);
+
+        var target = document.getElementById('cardPreview')?.cloneNode(true);
+        //@ts-ignore
+        el.appendChild(target);
+
+        //@ts-ignore
+        html2canvas(el.firstChild, {backgroundColor: null}).then(canvas => {
+          canvas.style.display = 'none';
+
+          let url = canvas.toDataURL("image/png");
+
+          el.remove();
+
+          resolve(url);
+        });
+      });
     }
 
     function onSaveButton(event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>)
@@ -260,7 +341,7 @@ const CardMaker: React.FC = () => {
 
                                 <IonButton
                                     color="primary"
-                                    onClick={e=>setArtUrl(null)}>
+                                    onClick={e=>{setArtUrl(null);}}>
                                     Remove Art
                                 </IonButton>
 
@@ -288,6 +369,25 @@ const CardMaker: React.FC = () => {
                                     onClick={onSaveButton}>
                                     Save Card
                                 </IonButton>
+
+                                <>
+                                    <input
+                                        ref={csvFile}
+                                        hidden
+                                        type="file"
+                                        accept=".csv"
+                                        onChange={onSelectCSV}
+                                        onClick={() => {}}
+                                    />
+                                    <IonButton
+                                        color="primary"
+                                        onClick={() => {
+                                            //@ts-ignore
+                                            csvFile?.current?.click();
+                                        }}>
+                                        Process CSV
+                                    </IonButton>
+                                </>
                             </IonCol>
                         </IonRow>
                     </form>
