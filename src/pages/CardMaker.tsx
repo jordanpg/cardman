@@ -124,7 +124,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                 elem['health'] = parseInt(elem['health']);
                 if('image' in elem === false)
                   elem['image'] = null;
-                  
+
                 setCardObj(elem);
                 return renderCardToDataURL()
                   .then(url => {
@@ -255,7 +255,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                             </IonCol>
                             <IonCol size="3">
                                 <IonLabel>Mana Cost</IonLabel>
-                                <IonInput value={mana} placeholder="e.g. {2}{B2}" onIonChange={e=>setMana(e.detail.value!)}></IonInput>
+                                <IonInput value={mana} placeholder="e.g. 2B2" onIonChange={e=>setMana(e.detail.value!)}></IonInput>
                             </IonCol>
                             <IonCol size="3">
                                 <IonLabel>Color</IonLabel>
@@ -288,6 +288,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                                       <IonSelectOption value="Creature">Creature</IonSelectOption>
                                       <IonSelectOption value="Action">Action</IonSelectOption>
                                       <IonSelectOption value="Field">Field</IonSelectOption>
+                                      <IonSelectOption value="Trinket">Trinket</IonSelectOption>
                                 </IonSelect>
                           </IonCol>
                           <IonCol size="6">
