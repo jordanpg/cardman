@@ -8,9 +8,13 @@ namespace Cardman {
         subtype: string | undefined,
         rarity: string,
         text: string | undefined,
+        lore: string | undefined,
+        series: string | undefined,
         artist: string | undefined,
         power: number | undefined,
-        health: number | undefined
+        health: number | undefined,
+        seriesId: number | undefined,
+        seriesTotal: number | undefined
       };
 
     type Collection = [ Card ];

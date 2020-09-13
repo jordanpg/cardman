@@ -5,6 +5,7 @@ import { File, FileWriter } from '@ionic-native/file';
 import 'csvtojson';
 
 import PreviewCard from '../components/PreviewCard';
+import PreviewCardNew from '../components/PreviewCardNew';
 
 import './CardMaker.css';
 // import rasterizeHTML from 'rasterizehtml';
@@ -38,6 +39,10 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [health, setHealth] = useState<number>();
     const [text, setText] = useState<string>();
     const [artUrl, setArtUrl] = useState<string>();
+    const [lore, setLore] = useState<string>();
+    const [series, setSeries] = useState<string>();
+    const [seriesId, setSeriesId] = useState<number>();
+    const [seriesTotal, setSeriesTotal] = useState<number>();
 
     // const [previewWidth, setPreviewWidth] = useState<number>();
 
@@ -57,7 +62,11 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       text: text,
       artist: artist,
       power: power,
-      health: health
+      health: health,
+      lore: lore,
+      series: series,
+      seriesId: seriesId,
+      seriesTotal: seriesTotal
     };
 
     function setCardObj(t: Cardman.Card)
@@ -79,6 +88,10 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       setArtist(t.artist);
       setPower(t.power);
       setHealth(t.health);
+      setLore(t.lore);
+      setSeries(t.series);
+      setSeriesId(t.seriesId);
+      setSeriesTotal(t.seriesTotal);
     }
 
     // Read image file to data URL and store it
@@ -180,27 +193,47 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     function renderCardToDataURL(): Promise<string>
     {
       return new Promise<string>( (resolve, reject) => {
-        var el = document.createElement('div');
-        document.body.appendChild(el);
+        let svg = document.getElementById('cardPreview')?.firstChild as SVGSVGElement;
+        let {width, height} = svg.getBBox();
+        let xml = new XMLSerializer().serializeToString(svg);
+        let img64 = 'data:image/svg+xml;base64,' + btoa(xml);
 
-        var target = document.getElementById('cardPreview')?.cloneNode(true);
-        //@ts-ignore
-        el.appendChild(target);
+        let image = new Image();
 
-        //@ts-ignore
-        html2canvas(el.firstChild, {backgroundColor: null}).then(canvas => {
-          canvas.style.display = 'none';
+        image.onload = () => {
+          console.log(image);
+          let canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          let ctx = canvas.getContext("2d");
 
-          let url = canvas.toDataURL("image/png");
+          ctx.drawImage(image, 0, 0, width, height);
 
-          el.remove();
+          let result = canvas.toDataURL('image/png');
+          canvas.remove();
 
-          resolve(url);
-        });
+          resolve(result);
+        }
+
+        image.src = img64;
+
+        // //@ts-ignore
+        // el.appendChild(target);
+
+        // //@ts-ignore
+        // html2canvas(el.firstChild, {backgroundColor: null}).then(canvas => {
+        //   canvas.style.display = 'none';
+
+        //   let url = canvas.toDataURL("image/png");
+
+        //   el.remove();
+
+        //   resolve(url);
+        // });
       });
     }
 
-    function onSaveButton(event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>)
+    async function onSaveButton(event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>)
     {
       event.preventDefault();
 
@@ -230,27 +263,13 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       //     console.error(e);
       // });
 
-      var el = document.createElement('div');
-      document.body.appendChild(el);
+      tempDL.href = await renderCardToDataURL();
+      tempDL.download = cardObj.name + '.png';
+      tempDL.click();
 
-      var target = document.getElementById('cardPreview')?.cloneNode(true);
-      //@ts-ignore
-      el.appendChild(target);
-
-      //@ts-ignore
-      html2canvas(el.firstChild, {backgroundColor: null}).then(canvas => {
-        canvas.style.display = 'none';
-
-        tempDL.href = canvas.toDataURL("image/png");
-        tempDL.download = cardObj.name + '.png';
-        tempDL.click();
-
-        tempDL.href = "data:application/octet-stream;base64," + btoa(JSON.stringify(cardObj));
-        tempDL.download = cardObj.name + '.json';
-        tempDL.click();
-
-        el.remove();
-      });
+      tempDL.href = "data:application/octet-stream;base64," + btoa(JSON.stringify(cardObj));
+      tempDL.download = cardObj.name + '.json';
+      tempDL.click();
 
       tempDL.remove();
     }
@@ -342,11 +361,29 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                             <IonLabel>Artist</IonLabel>
                             <IonInput value={artist} placeholder="Artist Name" onIonChange={e=>setArtist(e.detail.value!)}></IonInput>
                           </IonCol>
+                          <IonCol size="6">
+                            <IonLabel>Series</IonLabel>
+                            <IonInput value={series} placeholder="Series Identifier" onIonChange={e=>setSeries(e.detail.value!)}></IonInput>
+                          </IonCol>
+                          <IonCol size="3">
+                            <IonLabel>Number</IonLabel>
+                            <IonInput value={seriesId} type="number" placeholder="Card No." onIonChange={e=>setSeriesId(parseInt(e.detail.value!))}></IonInput>
+                          </IonCol>
+                          <IonCol size="3">
+                            <IonLabel>Total</IonLabel>
+                            <IonInput value={seriesTotal} type="number" placeholder="Series Total" onIonChange={e=>setSeriesTotal(parseInt(e.detail.value!))}></IonInput>
+                          </IonCol>
                         </IonRow>
                         <IonRow>
                           <IonItemDivider>Card Text</IonItemDivider>
                           <IonCol size="12">
                             <IonTextarea rows={7} placeholder="Card Text" value={text} onIonChange={e=>setText(e.detail.value!)}></IonTextarea>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow>
+                          <IonItemDivider>Card Lore</IonItemDivider>
+                          <IonCol size="12">
+                            <IonTextarea rows={3} placeholder="Card Lore" value={lore} onIonChange={e=>setLore(e.detail.value!)}></IonTextarea>
                           </IonCol>
                         </IonRow>
                         <IonRow>
@@ -426,7 +463,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                 </IonCol>
                 <IonCol size="12" size-md="6" ref={previewColumn}>
                   {/* Card Preview */}
-                    <PreviewCard cardObj={cardObj} scale={1.5} />
+                    <PreviewCardNew cardObj={cardObj} scale={0.5} />
                 </IonCol>
               </IonRow>
           </IonGrid>

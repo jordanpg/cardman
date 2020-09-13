@@ -1,0 +1,51 @@
+<svg width="750" height="1050" viewBox="0 0 750 1050" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="card 4">
+<rect x="9.375" y="9.375" width="731.25" height="1031.25" rx="28.125" fill="url(#paint0_linear)"/>
+<g id="textContainer">
+<path id="description bg" fill-rule="evenodd" clip-rule="evenodd" d="M690 609C690 606.791 688.209 605 686 605H64C61.7909 605 60 606.791 60 609V945C60 947.209 61.7909 949 64 949H263.627C265.462 949 267.062 950.249 267.507 952.03L274.243 978.97C274.688 980.751 276.288 982 278.123 982H471.877C473.712 982 475.312 980.751 475.757 978.97L482.493 952.03C482.938 950.249 484.538 949 486.373 949H686C688.209 949 690 947.209 690 945V609Z" fill="#F2F2F2"/>
+<g id="stats" clip-path="url(#clip0)">
+<text id="health" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="32" font-weight="bold" letter-spacing="0em"><tspan x="399.171" y="956.938">100</tspan></text>
+<text id="|" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="44" font-weight="bold" letter-spacing="0em"><tspan x="369.436" y="958.039">|</tspan></text>
+<text id="power" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="32" font-weight="bold" letter-spacing="0em"><tspan x="295.704" y="956.938">100</tspan></text>
+</g>
+<rect id="lore" x="76" y="837" width="598" height="79" fill="#BABABA"/>
+<rect id="text" x="76" y="621" width="598" height="216" fill="#8F8F8F"/>
+<text id="copyright" fill="#F2F2F2" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="24" letter-spacing="0em"><tspan x="469.453" y="1014.2">Mochi Games&#xa9;2020</tspan></text>
+<text id="seriesName" fill="#F2F2F2" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="24" letter-spacing="0em"><tspan x="645.797" y="986.203">CAL</tspan></text>
+<text id="illustrator" fill="#F2F2F2" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="24" font-style="italic" letter-spacing="0em"><tspan x="60" y="1014.2">Illus. </tspan></text>
+<text id="seriesNumber" fill="#F2F2F2" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="24" letter-spacing="0em"><tspan x="60" y="986.203">000/000</tspan></text>
+</g>
+<g id="typeContainer">
+<rect width="630" height="60" rx="4" transform="matrix(1 0 0 -1 60 590)" fill="#F2F2F2"/>
+<text id="rarity" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="30" letter-spacing="0em"><tspan x="534.752" y="570.254">Legendary</tspan></text>
+<text id="type" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="30" font-style="italic" letter-spacing="0em"><tspan x="76" y="570.254">Creature - Part of Calamity</tspan></text>
+</g>
+<g id="imageContainer">
+<mask id="path-15-inside-1" fill="white">
+<rect x="60" y="135" width="630" height="380" rx="4"/>
+</mask>
+<rect x="60" y="135" width="630" height="380" rx="4" fill="#F2F2F2"/>
+<rect id="image" x="60" y="135" width="630" height="380" fill="url(#pattern0)"/>
+<rect x="60" y="135" width="630" height="380" rx="4" stroke="#F2F2F2" stroke-width="9.38" mask="url(#path-15-inside-1)"/>
+</g>
+<g id="nameContainer">
+<rect width="630" height="60" rx="4" transform="matrix(1 0 0 -1 60 120)" fill="#F2F2F2"/>
+<text id="manaCost" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="36" letter-spacing="0em"><tspan x="495.266" y="102.305">2(PYRGB)2</tspan></text>
+<text id="name" fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="36" font-weight="bold" letter-spacing="0em"><tspan x="76" y="102.305">Magatsu Izanagi</tspan></text>
+</g>
+<rect x="9.375" y="9.375" width="731.25" height="1031.25" rx="28.125" stroke="black" stroke-width="18.75"/>
+</g>
+<defs>
+<pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0" transform="translate(0 -0.324447) scale(0.00108578 0.0018001)"/>
+</pattern>
+<linearGradient id="paint0_linear" x1="375" y1="0" x2="375" y2="1050" gradientUnits="userSpaceOnUse">
+<stop stop-color="#9145CD"/>
+<stop offset="1" stop-color="#5435AD"/>
+</linearGradient>
+<clipPath id="clip0">
+<rect width="194" height="60" fill="white" transform="matrix(1 0 0 -1 278 976)"/>
+</clipPath>
+<image id="image0" data-name="200911magatsu.png" width="921" height="916" xlink:href=""/>
+</defs>
+</svg>
