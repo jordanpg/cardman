@@ -10,6 +10,7 @@
     "@ionic-native/file": "^5.28.0",
     "@ionic/react": "^5.0.7",
     "@ionic/react-router": "^5.0.7",
+    "@svgr/cli": "^5.4.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^8.0.3",

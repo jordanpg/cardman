@@ -5,6 +5,8 @@ import { Text } from '@vx/text';
 import './PreviewCardNew.css';
 import { card } from 'ionicons/icons';
 
+import ManaSymbols, { ManaSymbolsMode } from './ManaSymbols';
+
 
 interface PreviewCardProps {
     cardObj: Cardman.Card,
@@ -41,7 +43,7 @@ class PreviewCardNew extends Component<PreviewCardProps> {
             }}>
                 <svg overflow="visible" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="750" height="1050" viewBox="0 0 750 1050" fill="none">
                     <g id="card 4">
-                        <rect x="9.375" y="9.375" width="731.25" height="1031.25" rx="28.125" fill={'url(#paint_' + cardObj.color} />
+                        <rect x="9.375" y="9.375" width="731.25" height="1031.25" rx="28.125" fill={'url(#paint_' + cardObj.color.toLowerCase()} />
                         <g id="textContainer">
                             <path id="description bg" fillRule="evenodd" clipRule="evenodd" d="M690 609C690 606.791 688.209 605 686 605H64C61.7909 605 60 606.791 60 609V945C60 947.209 61.7909 949 64 949H263.627C265.462 949 267.062 950.249 267.507 952.03L274.243 978.97C274.688 980.751 276.288 982 278.123 982H471.877C473.712 982 475.312 980.751 475.757 978.97L482.493 952.03C482.938 950.249 484.538 949 486.373 949H686C688.209 949 690 947.209 690 945V609Z" fill="#F2F2F2" />
                             <g id="stats" clipPath="url(#clip0)" display={(cardObj.power != null && cardObj.health != null && !isNaN(cardObj.power) && !isNaN(cardObj.health)) ? "initial" : "none"}>
@@ -93,7 +95,12 @@ class PreviewCardNew extends Component<PreviewCardProps> {
                         </g>
                         <g id="nameContainer">
                             <rect width="630" height="60" rx="4" transform="matrix(1 0 0 -1 60 120)" fill="#F2F2F2" />
-                            <text id="manaCost" textAnchor="end"  fill="black" xmlSpace="preserve" style={{whiteSpace: 'pre'}} fontFamily="Roboto" fontSize="36" letterSpacing="0em"><tspan x="674" y="102.305">{cardObj.manaCost}</tspan></text>
+                            {/* <text id="manaCost" textAnchor="end"  fill="black" xmlSpace="preserve" style={{whiteSpace: 'pre'}} fontFamily="Roboto" fontSize="36" letterSpacing="0em"><tspan x="674" y="102.305">{cardObj.manaCost}</tspan></text> */}
+                            {/* <foreignObject x={674} y={102.305} width={300} height={60} textAnchor='end' >
+                                <style dangerouslySetInnerHTML={{__html: '.manaSymbols{position:relative;right:0;display:flex;text-align:right;}'}} />
+                                <ManaSymbols cost={cardObj.manaCost} />
+                            </foreignObject> */}
+                            <ManaSymbols cost={cardObj.manaCost} x={674} y={71.305} symbolSize={40} useNumbersMode={ ManaSymbolsMode.GenericNumbersOnly } />
                             <text id="name" fill="black" xmlSpace="preserve" style={{whiteSpace: 'pre'}} fontFamily="Roboto" fontSize="36" fontWeight="bold" letterSpacing="0em"><tspan x="76" y="102.305">{cardObj.name}</tspan></text>
                         </g>
                         <rect x="9.375" y="9.375" width="731.25" height="1031.25" rx="28.125" stroke="black" strokeWidth="18.75" />
@@ -102,27 +109,27 @@ class PreviewCardNew extends Component<PreviewCardProps> {
                         <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
                             <use xlinkHref="#image0" transform="translate(0 -0.324447) scale(0.00108578 0.0018001)" />
                         </pattern>
-                        <linearGradient id="paint_Colorless" x1="4585" y1="0" x2="4585" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_colorless" x1="4585" y1="0" x2="4585" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#C6CEDA"/>
                             <stop offset="1" stopColor="#7D7F91"/>
                         </linearGradient>
-                        <linearGradient id="paint_Green" x1="3743" y1="0" x2="3743" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_green" x1="3743" y1="0" x2="3743" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#83D75C"/>
                             <stop offset="1" stopColor="#2D8A31"/>
                         </linearGradient>
-                        <linearGradient id="paint_Blue" x1="2901" y1="0" x2="2901" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_blue" x1="2901" y1="0" x2="2901" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#3BA0FD"/>
                             <stop offset="1" stopColor="#3B42F4"/>
                         </linearGradient>
-                        <linearGradient id="paint_Red" x1="2059" y1="0" x2="2059" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_red" x1="2059" y1="0" x2="2059" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#FC7C34"/>
                             <stop offset="1" stopColor="#DD342F"/>
                         </linearGradient>
-                        <linearGradient id="paint_Yellow" x1="1217" y1="0" x2="1217" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_yellow" x1="1217" y1="0" x2="1217" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#F9D65B"/>
                             <stop offset="1" stopColor="#FC7C34"/>
                         </linearGradient>
-                        <linearGradient id="paint_Purple" x1="375" y1="0" x2="375" y2="1050" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="paint_purple" x1="375" y1="0" x2="375" y2="1050" gradientUnits="userSpaceOnUse">
                             <stop stopColor="#9145CD" />
                             <stop offset="1" stopColor="#5435AD" />
                         </linearGradient>
