@@ -12,8 +12,12 @@
   },
   "dependencies": {
     "@capacitor-community/electron-core": "^1.0.0",
+    "canvas": "^2.6.1",
     "glob": "^7.1.6",
-    "glob-promise": "^3.4.0"
+    "glob-promise": "^3.4.0",
+    "jimp": "^0.16.1",
+    "merge-img": "^2.1.3",
+    "promisify": "0.0.3"
   },
   "devDependencies": {
     "electron": "^9.1.1",

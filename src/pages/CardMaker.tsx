@@ -12,6 +12,7 @@ import './CardMaker.css';
 import html2canvas from 'html2canvas';
 import csvtojson from 'csvtojson';
 import { platform } from 'os';
+// import TSDeckBuilder from '../TSDeckBuilder';
 
 interface CardMakerProps {
   editingFile?: string
@@ -78,7 +79,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       if(t.subtype === "") t.subtype = undefined;
 
       setName(t.name);
-      setColor(t.color);
+      setColor(t.color.toLowerCase());
       setMana(t.manaCost);
       setArtUrl(t.image);
       setType(t.type);
@@ -133,8 +134,17 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     {
       event.preventDefault();
 
+      let ipcRenderer = null;
+      if(isPlatform('electron'))
+        ipcRenderer = window.require('electron').ipcRenderer;
+
       if(event.target.files && event.target.files[0])
       {
+        // let deck = new TSDeckBuilder();
+        if(isPlatform('electron')) ipcRenderer.invoke('deckStart');
+
+        console.debug("Starting CSV import...");
+
         let reader = new FileReader();
         reader.onload = (e) => {
           csvtojson()
@@ -172,15 +182,18 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                 setCardObj(elem);
                 return renderCardToDataURL()
                   .then(url => {
-                    return [elem['name'], url];
+                    // deck.pushCard(url, elem);
+                    if(isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
+                    return [elem['name'], url, elem['series']];
                   })
               }));
+
+              // deck.finalizeDeck();
 
               console.log(list);
               if(isPlatform('electron'))
               {
-                const ipcRenderer = window.require('electron').ipcRenderer;
-
+                ipcRenderer.send('deckFinalize');
                 ipcRenderer.send('saveImages', list);
               }
             })
@@ -194,8 +207,11 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     {
       return new Promise<string>( (resolve, reject) => {
         let svg = document.getElementById('cardPreview')?.firstChild as SVGSVGElement;
-        let {width, height} = svg.getBBox();
+        // let {width, height} = svg.getBBox();
+        let width = 750;
+        let height = 1050;
         let xml = new XMLSerializer().serializeToString(svg);
+        // console.log(xml);
         let img64 = 'data:image/svg+xml;base64,' + btoa(xml);
 
         let image = new Image();
@@ -310,12 +326,12 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                             <IonCol size="3">
                                 <IonLabel>Color</IonLabel>
                                 <IonSelect interface="popover" value={color} okText="Okay" cancelText="Dismiss" onIonChange={e=>setColor(e.detail.value!)}>
-                                    <IonSelectOption value="Red">Red</IonSelectOption>
-                                    <IonSelectOption value="Yellow">Yellow</IonSelectOption>
-                                    <IonSelectOption value="Green">Green</IonSelectOption>
-                                    <IonSelectOption value="Blue">Blue</IonSelectOption>
-                                    <IonSelectOption value="Purple">Purple</IonSelectOption>
-                                    <IonSelectOption value="Colorless">Colorless</IonSelectOption>
+                                    <IonSelectOption value="red">Red</IonSelectOption>
+                                    <IonSelectOption value="yellow">Yellow</IonSelectOption>
+                                    <IonSelectOption value="green">Green</IonSelectOption>
+                                    <IonSelectOption value="blue">Blue</IonSelectOption>
+                                    <IonSelectOption value="purple">Purple</IonSelectOption>
+                                    <IonSelectOption value="colorless">Colorless</IonSelectOption>
                                 </IonSelect>
                             </IonCol>
                         </IonRow>

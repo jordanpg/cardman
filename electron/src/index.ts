@@ -2,6 +2,16 @@ import { app, ipcMain } from "electron";
 import { createCapacitorElectronApp } from "@capacitor-community/electron-core";
 import glob from 'glob-promise';
 import fs from 'fs';
+import './TSDeckBuilder';
+import TSDeckBuilder from "./TSDeckBuilder";
+
+const homedir = require('os').homedir();
+const tabletopDir = homedir + "/Documents/My Games/Tabletop Simulator/Saves/Saved Objects/cardman";
+
+type CardmanMainState = {
+  cardList: Array<object>,
+  deck: TSDeckBuilder | null
+}
 
 // The MainWindow object can be accessed via myCapacitorApp.getMainWindow()
 const myCapacitorApp = createCapacitorElectronApp({
@@ -39,8 +49,9 @@ app.on("activate", function () {
 });
 
 // Define any IPC or other custom functionality below here
-let mainState = {
-  cardList: []
+let mainState: CardmanMainState = {
+  cardList: [],
+  deck: null
 };
 
 async function getCards()
@@ -91,10 +102,52 @@ ipcMain.on('saveImages', (event, list) => {
   list.forEach(element => {
     let data = element[1].replace(/^data:image\/\w+;base64,/, "");
     let buf = Buffer.from(data, 'base64');
-    let name = 'cards/csvOut/' + element[0] + '.png';
+    let dir = 'cards/csvOut/';
+    if(element[2] != null && element[2] !== '')
+    {
+      dir += element[2] + '/';
+      if(!fs.existsSync(dir))
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    let name = dir + element[0] + '.png';
     console.log("Writing image " + name);
     fs.writeFile(name, buf, (err) => {
       if(err) console.error(err);
     });
+  });
+});
+
+ipcMain.on('saveTSObject', (event, json, name) => {
+  if(!fs.existsSync(tabletopDir))
+    fs.mkdirSync(tabletopDir, { recursive: true });
+
+  console.info(json);
+  let file = `${tabletopDir}/${name}.json`;
+  fs.writeFile(file, json, e => {
+    if(e) console.error(e);
+  });
+});
+
+ipcMain.handle('deckStart', async event => {
+  console.debug("Got deckStart");
+  mainState.deck = new TSDeckBuilder();
+  return true;
+});
+
+ipcMain.on('deckAddCard', (event, dataUrl, card) => {
+  mainState.deck.pushCard(dataUrl, card);
+})
+
+ipcMain.on('deckFinalize', async event => {
+  let [json, name] = await mainState.deck.finalizeDeck();
+
+  if(!fs.existsSync(tabletopDir))
+  fs.mkdirSync(tabletopDir, { recursive: true });
+
+  console.info(json);
+  let file = `${tabletopDir}/${name}.json`;
+  fs.writeFile(file, json, e => {
+    if(e) console.error(e);
+    else console.debug(`Wrote deck object to ${file}`);
   });
 });
