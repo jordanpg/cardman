@@ -135,10 +135,13 @@ ipcMain.handle('deckStart', async event => {
 });
 
 ipcMain.on('deckAddCard', (event, dataUrl, card) => {
+  if(!mainState.deck) return;
   mainState.deck.pushCard(dataUrl, card);
 })
 
-ipcMain.on('deckFinalize', async event => {
+ipcMain.handle('deckFinalize', async event => {
+  if(!mainState.deck) return;
+  
   let [json, name] = await mainState.deck.finalizeDeck();
 
   if(!fs.existsSync(tabletopDir))
@@ -150,4 +153,6 @@ ipcMain.on('deckFinalize', async event => {
     if(e) console.error(e);
     else console.debug(`Wrote deck object to ${file}`);
   });
+
+  return file;
 });

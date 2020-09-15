@@ -1,4 +1,4 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonItemDivider, IonInput, IonSelect, IonSelectOption, IonLabel, IonButton, IonItem, IonTextarea, isPlatform, getPlatforms } from '@ionic/react';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonItemDivider, IonInput, IonSelect, IonSelectOption, IonLabel, IonButton, IonItem, IonTextarea, isPlatform, getPlatforms, IonToast, IonToggle } from '@ionic/react';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useParams } from 'react-router';
 import { File, FileWriter } from '@ionic-native/file';
@@ -44,6 +44,8 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [series, setSeries] = useState<string>();
     const [seriesId, setSeriesId] = useState<number>();
     const [seriesTotal, setSeriesTotal] = useState<number>();
+    const [tsExport, setTsExport] = useState<boolean>(false);
+    const [toast, setToast] = useState<string>();
 
     // const [previewWidth, setPreviewWidth] = useState<number>();
 
@@ -141,7 +143,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       if(event.target.files && event.target.files[0])
       {
         // let deck = new TSDeckBuilder();
-        if(isPlatform('electron')) ipcRenderer.invoke('deckStart');
+        if(tsExport && isPlatform('electron')) ipcRenderer.invoke('deckStart');
 
         console.debug("Starting CSV import...");
 
@@ -183,7 +185,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                 return renderCardToDataURL()
                   .then(url => {
                     // deck.pushCard(url, elem);
-                    if(isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
+                    if(tsExport && isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
                     return [elem['name'], url, elem['series']];
                   })
               }));
@@ -193,7 +195,9 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
               console.log(list);
               if(isPlatform('electron'))
               {
-                ipcRenderer.send('deckFinalize');
+                if(tsExport)
+                  ipcRenderer.invoke('deckFinalize')
+                    .then(r => setToast(`Wrote deck to Tabletop Simulator at ${r}`));
                 ipcRenderer.send('saveImages', list);
               }
             })
@@ -473,6 +477,11 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                                         Process CSV
                                     </IonButton>
                                 </>
+
+                                <IonItem>
+                                  <IonLabel position="stacked">Tabletop Export:</IonLabel>
+                                  <IonToggle checked={tsExport} onIonChange={e=>setTsExport(e.detail.checked)} />
+                                </IonItem>
                             </IonCol>
                         </IonRow>
                     </form>
@@ -488,6 +497,12 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                       width: 240,
                       height: 336
                     }}></canvas> */}
+          <IonToast
+            isOpen={toast != null && toast !== ''}
+            onDidDismiss={() => setToast(null)}
+            message={toast}
+            duration={5000}
+          />
         </IonContent>
       </IonPage>
     );
