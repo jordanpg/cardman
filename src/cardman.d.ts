@@ -14,7 +14,8 @@ namespace Cardman {
         power: number | undefined,
         health: number | undefined,
         seriesId: number | undefined,
-        seriesTotal: number | undefined
+        seriesTotal: number | undefined,
+        amount?: number | undefined
       };
 
     type Collection = [ Card ];

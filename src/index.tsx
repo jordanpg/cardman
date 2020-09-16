@@ -4,7 +4,14 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { isPlatform } from '@ionic/react';
 
- 
+if(isPlatform('electron'))
+{
+  const ipcRenderer = window.require('electron').ipcRenderer;
+  ipcRenderer.on('console', (event, type, ...args) => {
+      console[type](...args);
+  });
+}
+
 ReactDOM.render(<App />, document.getElementById('root'));
 
 const style = document.createElement('link');

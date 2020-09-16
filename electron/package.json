@@ -14,6 +14,7 @@
     "@capacitor-community/electron-core": "^1.0.0",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
+    "imgur": "^0.3.1",
     "jimp": "^0.16.1",
     "merge-img": "^2.1.3"
   },
@@ -34,6 +35,7 @@
     "files": [
       "assets/*",
       "build/index.js",
+      "build/TSDeckBuilder.js",
       "preloader.js",
       "plugins/*",
       "capacitor.config.json",

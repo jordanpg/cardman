@@ -1,6 +1,7 @@
 import imgur from 'imgur';
 import fs from 'fs';
 import { promisify } from 'util';
+import logger from './LogHandler';
 
 const mergeImg = require('merge-img');
 const Jimp = require('jimp');
@@ -81,6 +82,14 @@ type SaveState = {
     VersionNumber: string
 }
 
+const rarityRestrictions = {
+    "Common": 4,
+    "Uncommon": 3,
+    "Rare": 2,
+    "Legendary": 1,
+    "Token": 1
+}
+
 export default class TSDeckBuilder
 {
     deckId: number
@@ -91,10 +100,12 @@ export default class TSDeckBuilder
     individualCards: boolean = false
     cardBuffer: Array<[string, Cardman.Card]>
     customDeck: { number: CustomDeckState } | {}
+    maxCardsPerImage: number = 20
+    seriesName: string
 
     static cardBack = "https://cdn.discordapp.com/attachments/751644256195575812/754903314436718622/card_backing.png";
     
-    constructor()
+    constructor(seriesName?: string)
     {
         this.cardId = 0;
         this.deckId = 1;
@@ -102,6 +113,8 @@ export default class TSDeckBuilder
 
         this.cardBuffer = new Array<[string, Cardman.Card]>();
         this.customDeck = {}
+
+        this.seriesName = seriesName;
 
         // Initialize SaveState
         this.tsObj = {
@@ -155,6 +168,10 @@ export default class TSDeckBuilder
 
     async pushCard(dataUrl: string, card: Cardman.Card)
     {
+        if(this.seriesName == null) this.seriesName = card.series;
+
+        logger.debug(`Pushing ${card.name}...`);
+
         dataUrl = dataUrl.replace('data:image/png;base64,','');
         if(this.individualCards)
         {
@@ -162,21 +179,20 @@ export default class TSDeckBuilder
             this.activeRequests++;
 
             // Upload card image and wait for a response.
-            console.debug(`Pushing ${card.name} to imgur...`);
             await imgur.uploadBase64(dataUrl)
                 .then(json => {
                     frontUrl = json.data.link;
-                    console.info(`${card.name} uploaded as ${frontUrl}`);
+                    logger.info(`${card.name} uploaded as ${frontUrl}`);
                 })
                 .catch(err => {
-                    console.error(err);
+                    logger.error(err);
                 });
                 
 
             this.activeRequests--;
             if(frontUrl == null)
             {
-                console.warn(`Could not add card ${card.name} to Tabletop Simulator object. Upload failed.`);
+                logger.warn(`Could not add card ${card.name} to Tabletop Simulator object. Upload failed.`);
                 return;
             }
 
@@ -188,23 +204,23 @@ export default class TSDeckBuilder
             // Add card to the buffer
             this.cardBuffer.push([dataUrl, card]);
 
-            if(this.cardBuffer.length === 70)
-                this.flushCardBuffer();
+            // if(this.cardBuffer.length === this.maxCardsPerImage)
+            //     this.flushCardBuffer();
         }
     }
 
-    async flushCardBuffer()
+    async flushCards(cards: Array<[string, Cardman.Card]>)
     {
         let row = [];
         let img = [];
 
-        console.debug(`Flushing ${this.cardBuffer.length} cards from buffer...`);
+        logger.debug(`Flushing ${cards.length} cards...`);
         
         const handleMerge = async () => {
-            console.debug(`Merging row ${img.length}...`);
+            logger.debug(`Merging row ${img.length}...`);
             const merged = await mergeImg(row)
-                .catch(console.error);
-            console.debug(`Row ${img.length} merged.`);
+                .catch(logger.error);
+            logger.debug(`Row ${img.length} merged.`);
             
             const bufferAsync = promisify(merged.getBuffer).bind(merged);
 
@@ -214,9 +230,9 @@ export default class TSDeckBuilder
             return Promise.resolve();
         }
 
-        for (const elem of this.cardBuffer)
+        for (const elem of cards)
         {
-            console.debug(`Flushing ${elem[1].name}...`);
+            logger.debug(`Flushing ${elem[1].name}...`);
             row.push(Buffer.from(elem[0], 'base64'));
             this.addCard(elem[1]);
 
@@ -231,35 +247,37 @@ export default class TSDeckBuilder
             await handleMerge();
         }
 
-        // console.debug(img[0]);
-        console.debug(`Merging ${img.length} rows...`);
+        // logger.debug(img[0]);
+        logger.debug(`Merging ${img.length} rows...`);
         let final = await mergeImg(img, {direction: true})
-            .catch(console.error);
+            .catch(logger.error);
 
-        console.debug(`All rows merged into 10x${img.length} card image.`);
+        logger.debug(`All rows merged into ${Math.min(10, cards.length)}x${img.length} card image.`);
 
-        // console.log(final);
+        // logger.log(final);
         let frontUrl = null;
         this.activeRequests++;
+
+        final.write(`./cards/deckImg/${this.seriesName + this.deckId}.png`);
 
         const abase64 = promisify(final.getBase64).bind(final);
 
         // Upload card image and wait for a response.
-        console.debug(`Pushing deck image to imgur...`);
+        logger.debug(`Pushing deck image to imgur...`);
         await imgur.uploadBase64((await abase64(Jimp.MIME_PNG)).replace('data:image/png;base64,',''))
             .then(json => {
                 frontUrl = json.data.link;
-                console.info(`Deck image uploaded as ${frontUrl}`);
+                logger.info(`Deck image uploaded as ${frontUrl}`);
             })
             .catch(err => {
-                console.error(err);
+                logger.error(err);
             });
             
 
         this.activeRequests--;
         if(frontUrl == null)
         {
-            console.warn(`Could not add deck to Tabletop Simulator object. Upload failed.`);
+            logger.warn(`Could not add deck to Tabletop Simulator object. Upload failed.`);
             return Promise.reject(`Could not add deck to Tabletop Simulator object. Upload failed.`);
         }
 
@@ -267,7 +285,7 @@ export default class TSDeckBuilder
             FaceURL: frontUrl,
             BackURL: TSDeckBuilder.cardBack,
             NumHeight: img.length,
-            NumWidth: 10,
+            NumWidth: Math.min(10, cards.length),
             BackIsHidden: true,
             UniqueBack: false
         }
@@ -280,11 +298,20 @@ export default class TSDeckBuilder
 
     async finalizeDeck(): Promise<[string, string]>
     {
+        logger.debug(`Finalizing deck...`);
         if(!this.individualCards)
-            await this.flushCardBuffer();
+        {
+            let i, temp;
+            for(i = 0; i < this.cardBuffer.length; i += this.maxCardsPerImage)
+            {
+                temp = this.cardBuffer.slice(i, i + this.maxCardsPerImage);
+                logger.debug(i, this.maxCardsPerImage, temp.length);
+                await this.flushCards(temp);
+            }
+        }
 
         let t = this;
-        console.info("Waiting for requests to finish...");
+        logger.info("Waiting for requests to finish...");
         await new Promise((res, rej) => {
             function wait() {
                 if(t.activeRequests === 0) return res();
@@ -293,8 +320,8 @@ export default class TSDeckBuilder
             wait();
         });
 
-        console.info("All cards finished! Attempting to save object...")
-        // console.debug(this);
+        logger.info("All cards finished! Attempting to save object...")
+        // logger.debug(this);
         // if(isPlatform('electron'))
         // {
         //     const ipcRenderer = window.require('electron').ipcRenderer;
@@ -302,10 +329,10 @@ export default class TSDeckBuilder
         //     ipcRenderer.send('saveTSObject', JSON.stringify(this, null, '\t'), `export${this.deck.GUID}`);
         // }
 
-        return Promise.resolve([JSON.stringify(this.tsObj, null, '\t'), `export${this.deck.GUID}`]);
+        return Promise.resolve([JSON.stringify(this.tsObj, null, '\t'), `export${this.seriesName}`]);
     }
 
-    private addCard(card: Cardman.Card, individual = false, front?: string, )
+    private addCard(card: Cardman.Card, individual = false, front?: string)
     {
         let deckId;
 
@@ -316,8 +343,6 @@ export default class TSDeckBuilder
         }
         else
             deckId = this.deckId * 100 + this.cardId;
-
-        this.deck.DeckIDs.push(deckId);
 
         let tscard: ObjectState = {
             Name: "Card",
@@ -362,7 +387,13 @@ export default class TSDeckBuilder
             tscard.CustomDeck[this.cardId] = customDeck;
         }
 
-        this.deck.ContainedObjects.push(tscard);
+        // Add copies depending on rarity
+        var copies = (card.amount != null ? card.amount : rarityRestrictions[card.rarity]);
+        for(var i=0;i<copies;i++)
+        {
+            this.deck.DeckIDs.push(deckId);
+            this.deck.ContainedObjects.push(tscard);
+        }
 
         this.cardId++;
     }
@@ -375,8 +406,7 @@ export default class TSDeckBuilder
     static generateCardDescription(card: Cardman.Card): string
     {
         let header = `[b]${card.name}[/b] : ${card.manaCost}`;
-        let body =  `\n${card.type + ((card.subtype != null && card.subtype.length > 0) ? " - " + card.subtype : "")}
-                     [00aa77]${card.text.trim()}`;
+        let body =  `\n${card.type + ((card.subtype != null && card.subtype.length > 0) ? " - " + card.subtype : "")}\n[00aa77]${card.text.trim()}`;
         return header + body;
     }
 

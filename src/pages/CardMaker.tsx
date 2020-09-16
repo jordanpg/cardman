@@ -152,7 +152,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
           csvtojson()
             .fromString(e.target?.result as string)
             .then( async json => {
-              console.log(json);
+              // console.log(json);
               let list = await Promise.all(json.map(async elem => {
                 elem['text'] = elem['text'].replace(/\\n/g,'\r\n');
                 elem['power'] = parseInt(elem['power']);
@@ -197,7 +197,8 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
               {
                 if(tsExport)
                   ipcRenderer.invoke('deckFinalize')
-                    .then(r => setToast(`Wrote deck to Tabletop Simulator at ${r}`));
+                    .then(r => setToast(`Wrote deck to Tabletop Simulator at ${r}`))
+                    .catch(e => setToast(`Error writing to Tabletop Simulator: ${e}`));
                 ipcRenderer.send('saveImages', list);
               }
             })

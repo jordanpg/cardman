@@ -3,7 +3,7 @@ import Page from './pages/Page';
 import CardMaker from './pages/CardMaker';
 import DeckBuilder from './pages/DeckBuilder';
 import React from 'react';
-import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
+import { IonApp, IonRouterOutlet, IonSplitPane, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
 
