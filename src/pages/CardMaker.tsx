@@ -47,6 +47,9 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [tsExport, setTsExport] = useState<boolean>(false);
     const [toast, setToast] = useState<string>();
 
+    const [sheetNames, setSheetNames] = useState<Array<string>>();
+    const [sheet, setSheet] = useState<string>();
+
     // const [previewWidth, setPreviewWidth] = useState<number>();
 
     const artFile = useRef(null);
@@ -71,6 +74,19 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       seriesId: seriesId,
       seriesTotal: seriesTotal
     };
+
+    useEffect(() => {
+      if(isPlatform('electron'))
+      {
+        console.debug("Getting sheet names...");
+        const ipcRenderer = window.require('electron').ipcRenderer;
+
+        ipcRenderer.invoke('getSheets').then(list => {
+          console.debug(list);
+          setSheetNames(list);
+        });
+      }
+    }, []);
 
     function setCardObj(t: Cardman.Card)
     {
@@ -136,76 +152,82 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     {
       event.preventDefault();
 
-      let ipcRenderer = null;
-      if(isPlatform('electron'))
-        ipcRenderer = window.require('electron').ipcRenderer;
-
       if(event.target.files && event.target.files[0])
       {
         // let deck = new TSDeckBuilder();
-        if(tsExport && isPlatform('electron')) ipcRenderer.invoke('deckStart');
-
-        console.debug("Starting CSV import...");
 
         let reader = new FileReader();
         reader.onload = (e) => {
-          csvtojson()
-            .fromString(e.target?.result as string)
-            .then( async json => {
-              // console.log(json);
-              let list = await Promise.all(json.map(async elem => {
-                elem['text'] = elem['text'].replace(/\\n/g,'\r\n');
-                elem['power'] = parseInt(elem['power']);
-                elem['health'] = parseInt(elem['health']);
-                if('image' in elem === false)
-                  elem['image'] = null;
-                else if(validURL(elem['image']))
-                {
-                  await new Promise((resolve, reject) => {
-                    let dl = new Image();
-                    dl.crossOrigin = "Anonymous";
-                    dl.addEventListener("load", () => {
-                      let c = document.createElement("canvas");
-                      let ct = c.getContext("2d");
-  
-                      c.width = dl.width;
-                      c.height = dl.height;
-  
-                      ct.drawImage(dl, 0, 0);
-                      
-                      elem['image'] = c.toDataURL('image/png');
-                      c.remove();
-                      resolve(true);
-                    }, false);
-                    dl.src = elem['image'];
-                  });
-                }
-
-                setCardObj(elem);
-                return renderCardToDataURL()
-                  .then(url => {
-                    // deck.pushCard(url, elem);
-                    if(tsExport && isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
-                    return [elem['name'], url, elem['series']];
-                  })
-              }));
-
-              // deck.finalizeDeck();
-
-              console.log(list);
-              if(isPlatform('electron'))
-              {
-                if(tsExport)
-                  ipcRenderer.invoke('deckFinalize')
-                    .then(r => setToast(`Wrote deck to Tabletop Simulator at ${r}`))
-                    .catch(e => setToast(`Error writing to Tabletop Simulator: ${e}`));
-                ipcRenderer.send('saveImages', list);
-              }
-            })
+          processCSV(e.target?.result as string);
         }
 
         reader.readAsText(event.target.files[0])
       }
+    }
+
+    function processCSV(input: string)
+    {
+      let ipcRenderer = null;
+      if(isPlatform('electron'))
+        ipcRenderer = window.require('electron').ipcRenderer;
+
+      console.debug("Starting CSV import...");
+
+      if(tsExport && isPlatform('electron')) ipcRenderer.invoke('deckStart');
+
+      csvtojson()
+      .fromString(input)
+      .then( async json => {
+        // console.log(json);
+        let list = await Promise.all(json.map(async elem => {
+          elem['text'] = elem['text'].replace(/\\n/g,'\r\n');
+          elem['power'] = parseInt(elem['power']);
+          elem['health'] = parseInt(elem['health']);
+          if('image' in elem === false)
+            elem['image'] = null;
+          else if(validURL(elem['image']))
+          {
+            await new Promise((resolve, reject) => {
+              let dl = new Image();
+              dl.crossOrigin = "Anonymous";
+              dl.addEventListener("load", () => {
+                let c = document.createElement("canvas");
+                let ct = c.getContext("2d");
+
+                c.width = dl.width;
+                c.height = dl.height;
+
+                ct.drawImage(dl, 0, 0);
+                
+                elem['image'] = c.toDataURL('image/png');
+                c.remove();
+                resolve(true);
+              }, false);
+              dl.src = elem['image'];
+            });
+          }
+
+          setCardObj(elem);
+          return renderCardToDataURL()
+            .then(url => {
+              // deck.pushCard(url, elem);
+              if(tsExport && isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
+              return [elem['name'], url, elem['series']];
+            })
+        }));
+
+        // deck.finalizeDeck();
+
+        console.log(list);
+        if(isPlatform('electron'))
+        {
+          if(tsExport)
+            ipcRenderer.invoke('deckFinalize')
+              .then(r => setToast(`Wrote deck to Tabletop Simulator at ${r}`))
+              .catch(e => setToast(`Error writing to Tabletop Simulator: ${e}`));
+          ipcRenderer.send('saveImages', list);
+        }
+      })
     }
 
     function renderCardToDataURL(): Promise<string>
@@ -293,6 +315,18 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
       tempDL.click();
 
       tempDL.remove();
+    }
+
+    async function onSelectSheet(event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>)
+    {
+      if(isPlatform('electron'))
+      {
+        const ipcRenderer = window.require('electron').ipcRenderer;
+
+        let csv = await ipcRenderer.invoke('getSheetCSV', sheet)
+
+        processCSV(csv);
+      }
     }
 
     return (
@@ -482,6 +516,26 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
                                 <IonItem>
                                   <IonLabel position="stacked">Tabletop Export:</IonLabel>
                                   <IonToggle checked={tsExport} onIonChange={e=>setTsExport(e.detail.checked)} />
+                                </IonItem>
+
+                                <IonItem>
+                                  <IonLabel position="stacked">Google Sheet Processing</IonLabel>
+                                  <IonSelect interface="popover" value={sheet} okText="Okay" cancelText="Dismiss" onIonChange={e=>setSheet(e.detail.value!)}>
+                                      <IonSelectOption disabled defaultChecked>Select Sheet</IonSelectOption>
+                                      {
+                                        sheetNames?.map(n => {
+                                          return (
+                                            <IonSelectOption value={n}>{n}</IonSelectOption>
+                                          );
+                                        })
+                                      }
+                                  </IonSelect>
+                                  
+                                  <IonButton
+                                      color="primary"
+                                      onClick={onSelectSheet}>
+                                      Process Sheet
+                                  </IonButton>
                                 </IonItem>
                             </IonCol>
                         </IonRow>

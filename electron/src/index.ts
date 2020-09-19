@@ -4,6 +4,7 @@ import glob from 'glob-promise';
 import fs from 'fs';
 import './TSDeckBuilder';
 import TSDeckBuilder from "./TSDeckBuilder";
+import { downloadSheets, getSheetNames } from "./SheetImport";
 
 const homedir = require('os').homedir();
 const tabletopDir = homedir + "/Documents/My Games/Tabletop Simulator/Saves/Saved Objects/cardman";
@@ -30,7 +31,9 @@ const myCapacitorApp = createCapacitorElectronApp({
 app.on("ready", () => {
   myCapacitorApp.init();
 
-  getCards().then(console.log);
+  getCards();
+  getSheetNames().then(console.log);
+  downloadSheets().then(console.log);
 });
 
 // Quit when all windows are closed.
@@ -155,4 +158,17 @@ ipcMain.handle('deckFinalize', async event => {
   });
 
   return file;
+});
+
+ipcMain.handle('getSheets', async event => {
+  return await getSheetNames();
+});
+
+ipcMain.handle('getSheetCSV', async (event, name) => {
+  const sheets = await downloadSheets();
+
+  for(const i of sheets)
+    if(i.name === name) return i.data
+
+  return null;
 });

@@ -1,5 +1,4 @@
 import imgur from 'imgur';
-import fs from 'fs';
 import { promisify } from 'util';
 import logger from './LogHandler';
 
