@@ -31,7 +31,7 @@ function validURL(str: string) {
 const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
     const [name, setName] = useState<string>();
     const [mana, setMana] = useState<string>();
-    const [color, setColor] = useState<string>('Colorless');
+    const [color, setColor] = useState<string>('colorless');
     const [rarity, setRarity] = useState<string>('Common');
     const [type, setType] = useState<string>('Creature');
     const [subtype, setSubtype] = useState<string>();
@@ -212,7 +212,7 @@ const CardMaker: React.FC<CardMakerProps> = ({ editingFile }) => {
             .then(url => {
               // deck.pushCard(url, elem);
               if(tsExport && isPlatform('electron')) ipcRenderer.send('deckAddCard', url, elem);
-              return [elem['name'], url, elem['series']];
+              return [elem['name'], url, elem['series'], elem];
             })
         }));
 

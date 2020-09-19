@@ -1,0 +1,25 @@
+#cardGrid #cardPreview {
+    display: inline-block;
+    margin: 5px;
+    transition: all .2s ease-in-out;
+}
+
+#cardGrid #cardPreview:hover {
+    transform: scale(1.2);
+    transition: all .1s ease;
+}
+
+#cardGrid #cardPreview:active {
+    transform: scale(1.15);
+}
+
+#cardGrid {
+    display: inline-block;
+    padding: 20px;
+    overflow-y: scroll;
+}
+
+ion-grid, #builder, #cardGrid, #gridContainer {
+    height: 100% !important;
+    width: 100% !important;
+}

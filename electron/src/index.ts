@@ -117,6 +117,14 @@ ipcMain.on('saveImages', (event, list) => {
     fs.writeFile(name, buf, (err) => {
       if(err) console.error(err);
     });
+
+    if(element[3] != null)
+    {
+      name = dir + element[0] + '.json';
+      fs.writeFile(name, JSON.stringify(element[3], null, '\t'), (err) => {
+        if(err) console.error(err);
+      });
+    }
   });
 });
 
@@ -171,4 +179,8 @@ ipcMain.handle('getSheetCSV', async (event, name) => {
     if(i.name === name) return i.data
 
   return null;
+});
+
+ipcMain.handle('getAllSheetCSV', async event => {
+  return await downloadSheets();
 });

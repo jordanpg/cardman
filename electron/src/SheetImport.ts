@@ -29,6 +29,29 @@ export async function getSheetNames(): Promise<Array<string>>
     return Promise.resolve(sheets['sheets'].map(e => { return e['properties']['title']; }));
 }
 
+export async function downloadSheet(name: string)
+{
+    console.debug(`Fetching sheet ${name}...`);
+    try
+    {
+        const csv = await getText(APIURL.getCSV + name);
+
+        return fs.promises.writeFile(`${sheetsOut}${name}.csv`, csv)
+            .then(_ => {
+                return {name: name, data: csv};
+            })
+            .catch((err) => {
+                console.error(`Error while writing out CSV for ${name}: ${err}`);
+                return null;
+            });
+    }
+    catch(err)
+    {
+        console.error(`Error while fetching CSV for ${name}: ${err}`);
+        return Promise.reject(null);
+    }
+}
+
 // Fetch CSV files for each sheet and download them.
 // Saves them to the sheetsOut directory and returns a list of objects with CSV data in the form of:
 // {
@@ -43,24 +66,6 @@ export async function downloadSheets()
     const sheets = await getSheetNames();
 
     return Promise.all(sheets.map(async name => {
-        console.debug(`Fetching sheet ${name}...`);
-        try
-        {
-            const csv = await getText(APIURL.getCSV + name);
-
-            return fs.promises.writeFile(`${sheetsOut}${name}.csv`, csv)
-                .then(_ => {
-                    return {name: name, data: csv};
-                })
-                .catch((err) => {
-                    console.error(`Error while writing out CSV for ${name}: ${err}`);
-                    return null;
-                });
-        }
-        catch(err)
-        {
-            console.error(`Error while fetching CSV for ${name}: ${err}`);
-            return null;
-        }
+        return downloadSheet(name);
     }));
 }
